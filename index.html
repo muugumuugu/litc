@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library at a Glance</title>
+    <style>
+        /* Add some basic styling to the gallery */
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .image-gallery img {
+            max-width: 100%;
+            height: auto;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="image-gallery" id="imageGallery"></div>
+
+    <script>
+        function addbook(a,b,c,d,e,f,g){
+        
+        }
+        var csvLink =" https://docs.google.com/spreadsheets/d/14ZRgUcMqUiTEDgsG8AUtbFKSXjVV5M4eEd0-sVK5xyA/pub?output=csv"
+        var request;
+if (window.XMLHttpRequest) {
+    request = new XMLHttpRequest();
+}
+else {
+    request = new ActiveXObject("Microsoft.XMLHTTP");
+}
+var loading = true;
+request.open("GET", csvLink, true);
+request.send();
+request.onload = function (e) {
+    if (request.readyState === 4) {
+        if (request.status === 200) {
+            var response = request.responseText;
+            var lines = request.responseText.split("\r");
+            for (var _i = 0, _a = lines.slice(1); _i < _a.length; _i++) {
+                var line = _a[_i];
+                var line_json = CSVtoArray(line);
+var title = line_json[0];
+var author = line_json[1];
+var copies = line_json[2];
+var genre = line_json[3];
+var language = line_json[4];
+var issuedby = line_json[5];
+var roll = line_json[6];
+var doi =line_json[7].split(" ");
+doi = make_date_friendly(doi[0]) + " " + doi[1];
+var dor =line_json[8].split(" ");
+dor = make_date_friendly(dor[0]) + " " + dor[1];
+                addbook(title,author,copies,genre,language,issuedby,roll,doi,dor)
+            }
+            // moving to the relevant meal
+            // set to reload after a certain amount of time
+            setToReload();
+        }
+        else {
+            console.error(request.statusText);
+        }
+    }
+};
+function CSVtoArray(text) {
+    var re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
+    var re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
+    // Return NULL if input string is not well formed CSV string.
+    if (!re_valid.test(text))
+        return null;
+    var a = []; // Initialize array to receive values.
+    text.replace(re_value, function (m0, m1, m2, m3) {
+        // Remove backslash from \' in single quoted values.
+        if (m1 !== undefined)
+            a.push(m1.replace(/\\'/g, "'"));
+        // Remove backslash from \" in double quoted values.
+        else if (m2 !== undefined)
+            a.push(m2.replace(/\\"/g, '"'));
+        else if (m3 !== undefined)
+            a.push(m3);
+        return ""; // Return empty string.
+    });
+    // Handle special case of empty last value.
+    if (/,\s*$/.test(text))
+        a.push("");
+    return a;
+}
+function make_date_friendly(date) {
+    var now = new Date();
+    var today = (now.getMonth() + 1).toString() +
+        "/" +
+        now.getDate().toString() +
+        "/" +
+        now.getFullYear().toString();
+    now.setDate(now.getDate() - 1); // going a day back
+    var yesterday = (now.getMonth() + 1).toString() +
+        "/" +
+        now.getDate().toString() +
+        "/" +
+        now.getFullYear().toString();
+    if (date == today) {
+        return "Today";
+    }
+    else if (date == yesterday) {
+        return "Yesterday";
+    }
+    return date;
+}
+        // An array of image links
+        var csvLink = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSpgPFjsVbVak8MuXxOYEV8ezmsXC38Ki13xHcGwVt3YbFRoRSKwiRemMk9lCGOKRsDCrlYtD2ePg7V/pub?output=csv";
+        var imageLinks = [
+            "image1.jpg",
+            "image2.jpg",
+            "image3.jpg",
+            "image4.jpg"
+        ];
+
+        // Get the gallery container
+        var gallery = document.getElementById("imageGallery");
+
+        // Create image elements and add them to the gallery
+        imageLinks.forEach(function(link) {
+            var img = document.createElement("img");
+            img.src = link;
+            gallery.appendChild(img);
+        });
+    </script>
+</body>
+</html>
